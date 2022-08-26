@@ -1,8 +1,9 @@
-import { Int, Query, Resolver } from '@nestjs/graphql';
+import { Args, Int, Query, Resolver } from '@nestjs/graphql';
 import { PostModel } from './interfaces/post.model';
 import { ConfigService } from '@nestjs/config';
 import { PbEnv } from 'src/config/environments/pb-env.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { GetPostsArgs } from './interfaces/get-post-connection.args';
 
 @Resolver((of) => PostModel)
 export class PostsResolver {
@@ -12,8 +13,8 @@ export class PostsResolver {
     private readonly prisma: PrismaService,
   ) {}
 
-  @Query(() => [PostModel], { name: 'posts', nullable: true })
-  async getPosts() {
+  @Query(() => [PostModel], { name: 'fixedPosts', nullable: true })
+  async getPostsByFixedData() {
     return [
       {
         id: '1',
@@ -42,5 +43,22 @@ export class PostsResolver {
   @Query(() => [PostModel], { name: 'prismaPosts', nullable: true })
   async getPostsByPrisma() {
     return this.prisma.post.findMany();
+  }
+
+  @Query(() => [PostModel], { name: 'posts', nullable: true })
+  async getPosts(@Args() args: GetPostsArgs) {
+    return this.prisma.post.findMany({
+      where: {
+        type: args.type
+          ? {
+              in: args.type,
+            }
+          : undefined,
+        published: true,
+      },
+      orderBy: {
+        publishDate: 'desc',
+      },
+    });
   }
 }
