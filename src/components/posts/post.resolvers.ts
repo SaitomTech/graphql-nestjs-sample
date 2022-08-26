@@ -1,8 +1,12 @@
-import { Query, Resolver } from '@nestjs/graphql';
+import { Int, Query, Resolver } from '@nestjs/graphql';
 import { PostModel } from './interfaces/post.model';
+import { ConfigService } from '@nestjs/config';
+import { PbEnv } from 'src/config/environments/pb-env.service';
 
 @Resolver((of) => PostModel)
 export class PostsResolver {
+  constructor(private configService: ConfigService, private pbEnv: PbEnv) {}
+
   @Query(() => [PostModel], { name: 'posts', nullable: true })
   async getPosts() {
     return [
@@ -15,5 +19,10 @@ export class PostsResolver {
         title: 'GraphQL is so good.',
       },
     ];
+  }
+
+  @Query(() => Int)
+  hello(): string {
+    return this.pbEnv.DatabaseUrl;
   }
 }
