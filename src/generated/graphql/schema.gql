@@ -8,5 +8,7 @@ type PostModel {
 }
 
 type Query {
+  hello: Int!
+  helloConfiguration: String!
   posts: [PostModel!]
 }

@@ -30,7 +30,7 @@ export class PostsResolver {
   }
 
   @Query(() => Int)
-  hello(): string {
-    return this.pbEnv.DatabaseUrl;
+  hello(): number {
+    return this.configService.get<number>('PORT');
   }
 }
