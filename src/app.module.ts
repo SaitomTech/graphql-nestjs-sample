@@ -1,18 +1,15 @@
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { PostsModule } from './components/posts/posts.module';
-import * as path from 'path';
 import { PbEnvModule } from './config/environments/pb-env.module';
+import { PbEnv } from './config/environments/pb-env.service';
 
 @Module({
   imports: [
     PbEnvModule,
-    GraphQLModule.forRoot({
-      autoSchemaFile: path.join(
-        process.cwd(),
-        'src/generated/graphql/schema.gql',
-      ),
-      sortSchema: true,
+    GraphQLModule.forRootAsync({
+      inject: [PbEnv],
+      useFactory: (env: PbEnv) => env.GqlModuleOptionsFactory,
     }),
     PostsModule,
   ],

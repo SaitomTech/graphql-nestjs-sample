@@ -21,6 +21,14 @@ export class PostsResolver {
     ];
   }
 
+  @Query(() => String)
+  helloConfiguration(): string {
+    const nodeEnv = this.configService.get<string>('NODE_ENV'); // development （.env.development.localのもの）
+    return nodeEnv;
+    // const databaseUrl = this.configService.get<string>('DATABASE_URL'); // postgresql:/... （.env.development.localのもの）
+    // const microCmsKey = this.configService.get<string>('MICRO_CMS_KEY'); // 1234567890（環境変数のもの）
+  }
+
   @Query(() => Int)
   hello(): string {
     return this.pbEnv.DatabaseUrl;
