@@ -2,10 +2,15 @@ import { Int, Query, Resolver } from '@nestjs/graphql';
 import { PostModel } from './interfaces/post.model';
 import { ConfigService } from '@nestjs/config';
 import { PbEnv } from 'src/config/environments/pb-env.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Resolver((of) => PostModel)
 export class PostsResolver {
-  constructor(private configService: ConfigService, private pbEnv: PbEnv) {}
+  constructor(
+    private configService: ConfigService,
+    private pbEnv: PbEnv,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @Query(() => [PostModel], { name: 'posts', nullable: true })
   async getPosts() {
@@ -32,5 +37,10 @@ export class PostsResolver {
   @Query(() => Int)
   hello(): number {
     return this.pbEnv.Port;
+  }
+
+  @Query(() => [PostModel], { name: 'prismaPosts', nullable: true })
+  async getPostsByPrisma() {
+    return this.prisma.post.findMany();
   }
 }

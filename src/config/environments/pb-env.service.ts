@@ -2,6 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GqlModuleOptions } from '@nestjs/graphql';
 import * as path from 'path';
+import winston from 'winston';
+import {
+  utilities as nestWinstonModuleUtilities,
+  WinstonModuleOptions,
+} from 'nest-winston';
+import { PrismaClientOptions } from '@prisma/client/runtime';
 
 @Injectable()
 export class PbEnv {
@@ -52,5 +58,42 @@ export class PbEnv {
 
   get DatabaseUrl(): string {
     return this.configService.get('DATABASE_URL');
+  }
+
+  get WinstonModuleOptionsFactory(): WinstonModuleOptions {
+    const loggingConsole = new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.ms(),
+        winston.format.errors({ stack: true }),
+        nestWinstonModuleUtilities.format.nestLike('PB_BACKEND', {
+          prettyPrint: true,
+        }),
+      ),
+    });
+    return {
+      level: this.isProduction() ? 'info' : 'debug',
+      transports: this.isProduction() ? [loggingConsole] : [loggingConsole],
+    };
+  }
+
+  get PrismaOptionsFactory(): PrismaClientOptions {
+    const logOptions = {
+      development: [
+        { emit: 'event', level: 'query' },
+        { emit: 'event', level: 'info' },
+        { emit: 'event', level: 'warn' },
+      ],
+      production: [{ emit: 'event', level: 'warn' }],
+      test: [
+        { emit: 'event', level: 'info' },
+        { emit: 'event', level: 'warn' },
+      ],
+    };
+    return {
+      errorFormat: 'colorless',
+      rejectOnNotFound: true,
+      log: logOptions[this.NodeEnv],
+    };
   }
 }

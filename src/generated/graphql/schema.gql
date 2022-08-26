@@ -11,4 +11,5 @@ type Query {
   hello: Int!
   helloConfiguration: String!
   posts: [PostModel!]
+  prismaPosts: [PostModel!]
 }
