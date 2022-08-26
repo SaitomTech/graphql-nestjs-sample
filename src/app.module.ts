@@ -2,9 +2,13 @@ import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { PostsModule } from './components/posts/posts.module';
 import * as path from 'path';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: ['.env.development.local'],
+    }),
     GraphQLModule.forRoot({
       autoSchemaFile: path.join(
         process.cwd(),
