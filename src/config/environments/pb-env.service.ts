@@ -8,6 +8,7 @@ import {
   WinstonModuleOptions,
 } from 'nest-winston';
 import { PrismaClientOptions } from '@prisma/client/runtime';
+import { HttpModuleOptions } from '@nestjs/axios';
 
 @Injectable()
 export class PbEnv {
@@ -94,6 +95,16 @@ export class PbEnv {
       errorFormat: 'colorless',
       rejectOnNotFound: true,
       log: logOptions[this.NodeEnv],
+    };
+  }
+  get MicroCmsHttpModuleOptionsFactory(): HttpModuleOptions {
+    return {
+      timeout: 5000,
+      maxRedirects: 5,
+      baseURL: this.configService.get('MICROCMS_ENDPOINT'),
+      headers: {
+        'X-MICROCMS-API-KEY': this.configService.get('MICROCMS_KEY'),
+      },
     };
   }
 }
